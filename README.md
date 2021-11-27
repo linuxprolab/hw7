@@ -78,7 +78,7 @@ GRUB_TERMINAL_OUTPUT="console"
 GRUB_CMDLINE_LINUX="no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto rd.lvm.lv=store/LogVol00 rd.lvm.lv=store/LogVol01 rhgb quiet"
 GRUB_DISABLE_RECOVERY="true"
 ```
-- **/boot/grub2/grub.cfg**
+- **/boot/grub2/grub.cfg**:
 ```
 	linux16 /vmlinuz-3.10.0-862.2.3.el7.x86_64 root=/dev/mapper/store-LogVol00 ro no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto rd.lvm.lv=store/LogVol00 rd.lvm.lv=store/LogVol01 rhgb quiet 
 	initrd16 /initramfs-3.10.0-862.2.3.el7.x86_64.img
@@ -87,7 +87,7 @@ GRUB_DISABLE_RECOVERY="true"
 
 `dracut --force -v`
 
-2.5. Перезагружаеся и смотри что получилось
+2.5. Перезагружаемся и смотрим что получилось.
 ```
 [root@lvm ~]# pvs
   PV         VG    Fmt  Attr PSize   PFree
