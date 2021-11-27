@@ -164,7 +164,7 @@ test
 ![dracut module image](img/hello.png)
 
 ## 4(*). Сконфигурировать систему без отдельного раздела с /boot, а только с LVM.
-4.1. Создаем раздел файловую систему на LVM. 
+4.1. Создаем файловую систему на LVM. 
 ```
 [root@otuslinux ~]# parted -s /dev/sdb mklabel msdos
 ```
