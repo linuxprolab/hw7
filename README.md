@@ -1,18 +1,19 @@
 # Домашнее задание 7. Работа с загрузчиком.
-## Содержание 
-[1. Попасть в систему без пароля несколькими способами.](## 1. Попасть в систему без пароля несколькими способами.)
-[2. Установить систему с LVM, после чего переименовать VG.](## 2. Установить систему с LVM, после чего переименовать VG.)
-[3. Добавить модуль в initrd](## 3. Добавить модуль в initrd)
-[4(*). Сконфигурировать систему без отдельного раздела с /boot, а только с LVM](## 4\(\*\). Сконфигурировать систему без отдельного раздела с /boot, а только с LVM)
+- [Домашнее задание 7. Работа с загрузчиком.](#домашнее-задание-7-работа-с-загрузчиком)
+  - [1. Попасть в систему без пароля несколькими способами.](#1-попасть-в-систему-без-пароля-несколькими-способами)
+  - [2. Установить систему с LVM, после чего переименовать VG.](#2-установить-систему-с-lvm-после-чего-переименовать-vg)
+  - [3. Добавить модуль в initrd](#3-добавить-модуль-в-initrd)
+  - [4(*). Сконфигурировать систему без отдельного раздела с /boot, а только с LVM.](#4-сконфигурировать-систему-без-отдельного-раздела-с-boot-а-только-с-lvm)
 ## 1. Попасть в систему без пароля несколькими способами. 
-### 1.1. Способ 1. init=/bin/sh
+1.1. Способ 1. init=/bin/sh
 - В начале загрузки дойдя до меню GRUB, нажимаем клавишу `e` - входим в экран редактирования настроек загрузчика. 
 - В параметрах ядра (в строке начинающейся с **linux16**) в конец добавляем `init=/bin/sh`, удаляем `console=tty0 console=ttyS0,115200n8`. Это изменит загрузку `systemd` на загрузку шелла.
 - Загружаемся нажатием `ctrl+x`. Попадаем в нашу систему и сразу в командную строку.
 - Переонтируем корневую ФС на запись `mount -o remount,rw /`
 - Меняем пароль **root** командой `passwd`
 - Перезагружаемся
-### 1.2. Способ 2. rd.break 
+- 
+1.2. Способ 2. rd.break 
 - В начале загрузки дойдя до меню GRUB, нажимаем клавишу `e` - входим в экран редактирования настроек загрузчика. 
 - В параметрах ядра (в строке начинающейся с **linux16**) в конец добавляем `rd.break`, удаляем `console=tty0 console=ttyS0,115200n8`.
 - Загружаемся нажатием `ctrl+x`. Попадаем в **initramfs**.
@@ -20,7 +21,8 @@
 - Меняем root каталог командой `chroot /sysroot`
 - Меняем пароль **root** командой `passwd`
 - Перезагружаемся
-### 1.3. Способ 3. rw init=/sysroot/bin/sh
+
+1.3. Способ 3. rw init=/sysroot/bin/sh
  - В начале загрузки дойдя до меню GRUB, нажимаем клавишу `e` - входим в экран редактирования настроек загрузчика. 
 - В параметрах ядра (в строке начинающейся с **linux16**) вместо `ro` добавляем `rw init=/sysroot/bin/sh`, удаляем `console=tty0 console=ttyS0,115200n8`.
 - Загружаемся нажатием `ctrl+x`. Попадаем в нашу систему и сразу в командную строку, корень на этот раз примонтирован на запись.
@@ -28,7 +30,7 @@
 - Меняем пароль **root** командой `passwd`
 - Перезагружаемся
 ## 2. Установить систему с LVM, после чего переименовать VG.
-### 2.1. Допустим мы имеет следующую конфигурацию LVM:
+2.1. Допустим мы имеет следующую конфигурацию LVM:
 ```
 [root@lvm ~]# pvs
   PV         VG         Fmt  Attr PSize   PFree
@@ -41,13 +43,13 @@
   LogVol00 VolGroup00 -wi-ao---- <37.47g                                                    
   LogVol01 VolGroup00 -wi-ao----   1.50g                 
 ```
-### 2.2. Переименуем VG:
+2.2. Переименуем VG:
 ```
 [root@lvm ~]# vgrename VolGroup00 store
   Volume group "VolGroup00" successfully renamed to "store"
 ```
 
-### 2.3. Вносим соответствующие измения в файлы **/etc/fstab**, **/etc/default/grub**, **/boot/grub2/grub.cfg**
+2.3. Вносим соответствующие измения в файлы **/etc/fstab**, **/etc/default/grub**, **/boot/grub2/grub.cfg**
 - **/etc/fstab**:
 ```
 #
@@ -81,11 +83,11 @@ GRUB_DISABLE_RECOVERY="true"
 	linux16 /vmlinuz-3.10.0-862.2.3.el7.x86_64 root=/dev/mapper/store-LogVol00 ro no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto rd.lvm.lv=store/LogVol00 rd.lvm.lv=store/LogVol01 rhgb quiet 
 	initrd16 /initramfs-3.10.0-862.2.3.el7.x86_64.img
 ```
-### 2.4. Пересоздаем **iniramfs**
+2.4. Пересоздаем **iniramfs**
 
 `dracut --force -v`
 
-### 2.5. Перезагружаеся и смотри что получилось
+2.5. Перезагружаеся и смотри что получилось
 ```
 [root@lvm ~]# pvs
   PV         VG    Fmt  Attr PSize   PFree
@@ -99,11 +101,11 @@ GRUB_DISABLE_RECOVERY="true"
   LogVol01 store -wi-ao----   1.50g         
 ```
 ## 3. Добавить модуль в initrd
-### 3.1. Coздаем каталог для нашего модуля
+3.1. Coздаем каталог для нашего модуля
 ```
 [root@localhost ~]# mkdir /usr/lib/dracut/modules.d/01test
 ```
-### 3.2. Помещаем в кататог файлы **module-setup.sh** и **test.sh**
+3.2. Помещаем в кататог файлы **module-setup.sh** и **test.sh**
  - **module-setup.sh**
  ```
  #!/bin/bash
@@ -143,12 +145,12 @@ msgend
 sleep 10
 echo " continuing...."
 ```
-### 3.3. Устанавливаем файлам права на запуск
+3.3. Устанавливаем файлам права на запуск
 ```
 [root@localhost 01test]# chmod +x module-setup.sh 
 [root@localhost 01test]# chmod +x test.sh 
 ```
-### 3.4. Пересобираем **initramfs**
+3.4. Пересобираем **initramfs**
 ```
 [root@localhost 01test]# dracut -f -v
 ```
@@ -157,12 +159,12 @@ echo " continuing...."
 [root@localhost 01test]# lsinitrd -m /boot/initramfs-$(uname -r).img | grep test
 test
 ```
-### 3.5. Перезагружаемся и смотрим, что получилось. Если требуется, то удалить параметры ядра `console=tty0`, `console=ttyS0,115200n8` `rhgb`, `quiet`.
+3.5. Перезагружаемся и смотрим, что получилось. Если требуется, то удалить параметры ядра `console=tty0`, `console=ttyS0,115200n8` `rhgb`, `quiet`.
 
 ![dracut module image](img/hello.png)
 
 ## 4(*). Сконфигурировать систему без отдельного раздела с /boot, а только с LVM.
-### 4.1. Создаем раздел файловую систему на LVM. 
+4.1. Создаем раздел файловую систему на LVM. 
 ```
 [root@otuslinux ~]# parted -s /dev/sdb mklabel msdos
 ```
@@ -191,24 +193,24 @@ sdb              8:16   0  9.8G  0 disk
 └─sdb1           8:17   0  9.8G  0 part 
   └─store-root 253:0    0  9.8G  0 lvm  
 ```
-### 4.2. Монтируем новый раздел в /mnt 
+4.2. Монтируем новый раздел в /mnt 
 ```
 [root@otuslinux ~]# mount /dev/mapper/store-root /mnt
 ```
-### 4.3. Копируем существуюшую систему
+4.3. Копируем существуюшую систему
 ```
 [root@otuslinux ~]# rsync -a -x / /mnt
 ```
-### 4.4. Монтируем необходимые каталоги **/dev**, **/proc**, **/sys**, **/run**
+4.4. Монтируем необходимые каталоги **/dev**, **/proc**, **/sys**, **/run**
 ```
 [root@otuslinux ~]# for i in dev proc run sys;do mount --bind /$i /mnt/$i; done
 ```
-### 4.5. Меняет корневой каталог 
+4.5. Меняет корневой каталог 
 ```
 chroot /mnt
 [root@otuslinux /]# 
 ```
-### 4.6. Устанавливаем модифицированный GRUB (хотя у меня работает со штатным проблем не возникло)
+4.6. Устанавливаем модифицированный GRUB (хотя у меня работает со штатным проблем не возникло)
 - Добавлям репозиторий
 ```
 [root@otuslinux /]# yum-config-manager --add-repo=https://yum.rumyantsev.com/centos/7/x86_64/
@@ -217,7 +219,7 @@ chroot /mnt
 ```
 [root@otuslinux /]# sudo yum --enablerepo=yum.rumyantsev.com_centos_7_x86_64_ install grub2
 ```
-### 4.7. Вносим измения в файлы **/etc/fstab**, **/etc/default/grub**, 
+4.7. Вносим измения в файлы **/etc/fstab**, **/etc/default/grub**, 
 - **/etc/fstab**
 ```
 [root@otuslinux /]# blkid
@@ -243,18 +245,18 @@ UUID=a71deb70-9d05-446e-84d0-e1fbb9f5920a /                       ext4     defau
 
 В файле **/etc/default/grub** в параметр **GRUB_CMDLINE_LINUX** добавляем `rd.lvm.lv=store/root`. Это нужно для автоопределения lvm[^1]. Иногда определяется автоматически. В centos/7 определяется автоматически, в centos/8 - нет.
 
-### 4.8. Устанавливаем GRUB
+4.8. Устанавливаем GRUB
 ```
 [root@otuslinux /]# grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
 ```
 [root@otuslinux /]# grub2-install /dev/sdb
 ```
-### 4.9 Пересобираем **initramfs**
+4.9 Пересобираем **initramfs**
 ```
 [root@otuslinux /]# dracut -f -v
 ```
-### 4.10 Отключам SELinux в файле `/etc/selinux/config` или делаем `touch /.autorelabel` и перезагружаемся. Выбираем при загрузке через `F12` новый диск. Смотрим результат
+4.10 Отключам SELinux в файле `/etc/selinux/config` или делаем `touch /.autorelabel` и перезагружаемся. Выбираем при загрузке через `F12` новый диск. Смотрим результат
 ```
 root@otuslinux:~[root@otuslinux ~]# lsblk
 NAME           MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
